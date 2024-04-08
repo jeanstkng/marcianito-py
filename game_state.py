@@ -12,7 +12,7 @@ class GameState():
         if self.playerPos.x < 0:
             self.playerPos.x = 0
         elif self.playerPos.x >= self.worldSize.x:
-            self.playerPos = self.worldSize.x - 1
+            self.playerPos.x = self.worldSize.x - 1
             
         if self.playerPos.y < 0:
             self.playerPos.y = 0
