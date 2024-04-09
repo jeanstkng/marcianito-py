@@ -3,9 +3,9 @@ import os
 import pygame
 from pygame.locals import *
 from pygame.math import Vector2
-from game_state import GameState
 from player import Player
 from constants import game_constants
+from background import Background
 
 os.environ["SLD_VIDEO_CENTERED"] = "1"
 
@@ -14,13 +14,11 @@ class Game():
         pygame.init()
         
         self.clock = pygame.time.Clock()
-        self.gameState = GameState()
         
         self.window = pygame.display.set_mode((game_constants.get("window_width"),
                                                game_constants.get("window_height")))
-        
-        
-        sprite_sheet = pygame.image.load("marcianito.png")
+        self.bg = Background(self.window)
+        sprite_sheet = pygame.image.load(os.path.join('images','marcianito.png'))
 
         self.player = Player(sprite_sheet)
         self.all_sprites = pygame.sprite.Group(self.player)
@@ -49,15 +47,15 @@ class Game():
             self.movement.y = -8
     
     def update(self):
-        self.gameState.update(self.movement)
         self.all_sprites.update(self.movement)
+        self.bg.update(self.player.rect)
 
     def render(self):
         self.window.fill((0,0,0))
         
+        self.bg.draw()
         self.player.animate()
         self.all_sprites.draw(self.window)
-        
         pygame.display.flip()
     
     def run(self):

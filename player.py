@@ -1,5 +1,5 @@
 import pygame
-from game_state import game_constants
+from constants import game_constants
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, sprite_sheet):
@@ -13,7 +13,7 @@ class Player(pygame.sprite.Sprite):
         self.current_frame = 0
         self.image = self.get_current_frame()
         self.rect = self.image.get_rect()
-        self.rect.topleft = (640, 360)  # Initial position
+        self.rect.topleft = (640, 360)
         self.speed = 5
         self.screen_width = game_constants.get("window_width")
         self.screen_height = game_constants.get("window_height")
@@ -37,8 +37,7 @@ class Player(pygame.sprite.Sprite):
     def update(self, movement):
         self.rect.move_ip(movement.x, movement.y)
         # Clamp to screen bounds if needed
-        self.rect.left = max(0, min(self.rect.left, self.screen_width - self.rect.width))
-        print(self.rect.left)
+        self.rect.left = max(350, min(self.rect.left, self.screen_width - 450))
         self.rect.top = max(0, min(self.rect.top, self.screen_height - self.rect.height))
 
     def animate(self):
