@@ -3,6 +3,7 @@ import os
 
 class Background():
     def __init__(self, window):
+        super().__init__()
         self.bg = pygame.image.load(os.path.join('images','bg.png')).convert()
         self.bgX = 0
         self.bgX2 = self.bg.get_width()
