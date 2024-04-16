@@ -7,16 +7,10 @@ from player import Player
 from constants import game_constants
 from background import Background
 from laser_beam import LaserBeam
+from asteroid import Asteroid
+from game_state import GameState
 
 os.environ["SLD_VIDEO_CENTERED"] = "1"
-
-class Target(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.Surface((50, 50))
-        self.image.fill((255, 0, 0))
-        self.rect = self.image.get_rect()
-        self.rect.center = (200, 200)
 
 screen_size = Vector2(game_constants.get("window_width"), game_constants.get("window_height"))
 screen_center = screen_size // 2
@@ -25,6 +19,7 @@ class Game():
         pygame.init()
         
         self.clock = pygame.time.Clock()
+        self.game_state = GameState()
         
         self.surface = pygame.display.set_mode((game_constants.get("window_width"),
                                                game_constants.get("window_height")))
@@ -33,10 +28,12 @@ class Game():
 
         self.player = Player(sprite_sheet)
         
-        self.target = Target()
+        self.targets = [Asteroid(self.game_state),Asteroid(self.game_state),
+                        Asteroid(self.game_state),Asteroid(self.game_state),
+                        Asteroid(self.game_state)]
         
-        self.all_sprites = pygame.sprite.Group(self.player, self.target)
-        self.laser_beam = LaserBeam(self.player.rect.center)
+        self.all_sprites = pygame.sprite.Group(self.player, self.targets)
+        self.laser_beam = LaserBeam(self.player.rect.center, self.game_state)
         
         pygame.display.set_caption("Marcianito 100% Real")
         self.running = True
@@ -65,12 +62,16 @@ class Game():
         self.player.update(self.movement)
         self.laser_beam.update(self.player.rect.center)
         self.bg.update(self.player.rect)
+        for target in self.targets:
+            target.update()
 
     def render(self):
         self.surface.fill((0,0,0))
         
         self.bg.draw()
         self.laser_beam.draw(self.surface)
+        for target in self.targets:
+            target.draw(self.surface)
                     
         self.player.animate()
         self.all_sprites.draw(self.surface)
