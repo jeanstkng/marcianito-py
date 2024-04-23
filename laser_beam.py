@@ -80,7 +80,7 @@ class LaserBeam():
         self.rect = self.image.get_rect(center = self.pos)
         
     def reset_image_change(self):
-        # self.game_state.laser_reached = False
+        self.game_state.laser_reached = False
         self.x_pos = 0
         self.x_scale = 0
         self.image_orig = pygame.transform.scale(self.laser, (0, 0))

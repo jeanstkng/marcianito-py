@@ -23,14 +23,12 @@ class Game():
         
         self.surface = pygame.display.set_mode((game_constants.get("window_width"),
                                                game_constants.get("window_height")))
-        self.bg = Background(self.surface)
+        self.bg = Background(self.surface, self.game_state)
         sprite_sheet = pygame.image.load(os.path.join('images','marcianito.png'))
 
         self.player = Player(sprite_sheet)
         
-        self.targets = [Asteroid(self.game_state),Asteroid(self.game_state),
-                        Asteroid(self.game_state),Asteroid(self.game_state),
-                        Asteroid(self.game_state)]
+        self.targets = [Asteroid(self.game_state) for _ in range(10)]
         
         self.all_sprites = pygame.sprite.Group(self.player, self.targets)
         self.laser_beam = LaserBeam(self.player.rect.center, self.game_state)
@@ -62,16 +60,15 @@ class Game():
         self.player.update(self.movement)
         self.laser_beam.update(self.player.rect.center)
         self.bg.update(self.player.rect)
+        self.targets[:] = [target for target in self.targets if target.is_alive]
         for target in self.targets:
-            target.update()
+            target.update(self.clock.get_time())
 
     def render(self):
         self.surface.fill((0,0,0))
         
         self.bg.draw()
         self.laser_beam.draw(self.surface)
-        for target in self.targets:
-            target.draw(self.surface)
                     
         self.player.animate()
         self.all_sprites.draw(self.surface)

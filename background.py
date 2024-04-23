@@ -2,7 +2,7 @@ import pygame
 import os
 
 class Background():
-    def __init__(self, window):
+    def __init__(self, window, game_state):
         super().__init__()
         self.bg = pygame.image.load(os.path.join('images','bg.png')).convert()
         self.bgX = 0
@@ -10,12 +10,17 @@ class Background():
         self.bgX3 = -self.bg.get_width()
         self.speed = 0.8
         self.window = window
+        self.game_state = game_state
         
-    def update(self, rect):
-        if rect.x >= 800:
+    def update(self, player_rect):
+        if player_rect.x >= 800:
             self.moveBackgrounds(-1)
-        elif rect.x <= 350:
+            self.game_state.player_dir = -1
+        elif player_rect.x <= 350:
             self.moveBackgrounds(1)
+            self.game_state.player_dir = 1
+        else:
+            self.game_state.player_dir = 0
 
         if self.bgX < self.bg.get_width() * -1:
             self.bgX = self.bg.get_width()
