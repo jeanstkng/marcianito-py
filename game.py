@@ -9,6 +9,7 @@ from background import Background
 from laser_beam import LaserBeam
 from asteroid import Asteroid
 from game_state import GameState
+from marcianito import Marcianito
 
 os.environ["SLD_VIDEO_CENTERED"] = "1"
 
@@ -19,6 +20,7 @@ class Game():
         pygame.init()
         
         self.clock = pygame.time.Clock()
+        self.delta_time = 0
         self.game_state = GameState()
         
         self.surface = pygame.display.set_mode((game_constants.get("window_width"),
@@ -28,9 +30,11 @@ class Game():
 
         self.player = Player(sprite_sheet)
         
+        self.followers = [Marcianito(sprite_sheet, 64)]
+        
         self.targets = [Asteroid(self.game_state) for _ in range(10)]
         
-        self.all_sprites = pygame.sprite.Group(self.player, self.targets)
+        self.all_sprites = pygame.sprite.Group(self.player, self.targets, self.followers)
         self.laser_beam = LaserBeam(self.player.rect.center, self.game_state)
         
         pygame.display.set_caption("Marcianito 100% Real")
@@ -61,15 +65,24 @@ class Game():
         self.laser_beam.update(self.player.rect.center)
         self.bg.update(self.player.rect)
         self.targets[:] = [target for target in self.targets if target.is_alive]
+        
         for target in self.targets:
             target.update(self.clock.get_time())
+        
+        for follower in self.followers:
+            follower.update(self.delta_time, self.player.rect.center)
 
     def render(self):
         self.surface.fill((0,0,0))
         
         self.bg.draw()
         self.laser_beam.draw(self.surface)
-                    
+        
+        for follower in self.followers:
+            # pygame.draw.rect(self.surface, (100, 50, 0), follower.rect, 2)
+            follower.animate()
+            
+            
         self.player.animate()
         self.all_sprites.draw(self.surface)
         pygame.display.flip()
@@ -79,8 +92,7 @@ class Game():
             self.processInput()
             self.update()
             self.render()
-            self.clock.tick(60)
-
+            self.delta_time = self.clock.tick(60) / 1000.0
 
 game = Game()
 game.run()
