@@ -2,9 +2,10 @@ import os
 import pygame
 import random, uuid
 from pygame import Vector2
+from marcianito import Marcianito
 
 class Asteroid(pygame.sprite.Sprite):
-    def __init__(self, game_state):
+    def __init__(self, game_state, is_rendered = True):
         super().__init__()
         # Explosion
         self.sprite_sheet = pygame.image.load(os.path.join('images','explotion.png'))
@@ -23,7 +24,7 @@ class Asteroid(pygame.sprite.Sprite):
         self.image = pygame.image.load(os.path.join('images','asteroid.png')).convert_alpha()
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect = self.image.get_rect()
-        self.rect.center = (random.randint(0, 1280), random.randint(0, 720))
+        self.rect.center = (random.randint(-1280, 1280 * 2), random.randint(0, 720))
         self.position = self.rect.center
         self.game_state = game_state
         self.health = 100
@@ -32,6 +33,7 @@ class Asteroid(pygame.sprite.Sprite):
         self.direction = Vector2(random.choice([-1, 1]), 0)
         self.speed = 0.075
         
+        self.is_rendered = is_rendered
         self.dt = 0
         
     def animate(self):
@@ -59,6 +61,7 @@ class Asteroid(pygame.sprite.Sprite):
             self.game_state.is_over_asteroid = False
             if not self.explosion_started:
                 self.image = self.explotion_image
+                self.game_state.followers.append(Marcianito(self.game_state, 64, self.position))
             self.explosion_started = True
             return
         

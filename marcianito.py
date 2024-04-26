@@ -1,11 +1,12 @@
+import os
 import pygame
 import math
 from constants import game_constants
 
 class Marcianito(pygame.sprite.Sprite):
-    def __init__(self, sprite_sheet, scale = False):
+    def __init__(self, game_state = None, scale = False, initial_pos = (640, 320)):
         super().__init__()
-        self.sprite_sheet = sprite_sheet
+        self.sprite_sheet = pygame.image.load(os.path.join('images','marcianito.png'))
         self.frame_width = 96
         self.frame_height = 128
         self.frames_per_row = 5
@@ -15,11 +16,13 @@ class Marcianito(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.get_current_frame(), (scale, scale)) if scale else self.get_current_frame()
         self.scale = scale
         self.rect = self.image.get_rect()
-        self.rect.topleft = (640, 360)
+        self.rect.center = initial_pos
         self.screen_width = game_constants.get("window_width")
         self.screen_height = game_constants.get("window_height")
         self.speed = 400
-        self.target_pos = (0, 0)
+        self.target_pos = initial_pos
+        self.is_rendered = False
+        self.game_state = game_state
         
     def calculate_layout(self):
         rows = self.total_frames // self.frames_per_row
@@ -38,9 +41,9 @@ class Marcianito(pygame.sprite.Sprite):
         return frame_image
 
     def update(self, dt, player_pos):
-        modified_player_x = player_pos[0] + 100
+        modified_player_x = player_pos[0] + (48 * (self.game_state.followers.index(self) + 1))
         if player_pos[0] > self.screen_width / 2:
-            modified_player_x = player_pos[0] - 100
+            modified_player_x = player_pos[0] - (48 * (self.game_state.followers.index(self) + 1))
         
         self.target_pos = (modified_player_x, player_pos[1] + 24)
         
