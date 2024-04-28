@@ -31,7 +31,8 @@ class Asteroid(pygame.sprite.Sprite):
         self.is_alive = True
         self.color_rate = 0.005
         self.direction = Vector2(random.choice([-1, 1]), 0)
-        self.speed = 0.075
+        self.speed = 0.1
+        self.actual_scoring_limit = 100
         
         self.is_rendered = is_rendered
         self.dt = 0
@@ -60,6 +61,7 @@ class Asteroid(pygame.sprite.Sprite):
             self.game_state.over_asteroid_id = ""
             self.game_state.is_over_asteroid = False
             if not self.explosion_started:
+                if self.game_state.player_health < 100: self.game_state.player_health += 5
                 self.image = self.explotion_image
                 self.game_state.followers.append(Marcianito(self.game_state, 64, self.position))
             self.explosion_started = True
@@ -88,6 +90,9 @@ class Asteroid(pygame.sprite.Sprite):
             self.game_state.is_over_asteroid = True
             if self.game_state.laser_reached:
                 self.health -= 1
+                if self.health < self.actual_scoring_limit:
+                    self.actual_scoring_limit -= 10
+                    self.game_state.score += 1
                 self.image = self.create_image_surface_with_fog(self.image, (255, 0, 0), self.color_rate)
         elif self.game_state.over_asteroid_id == self.id and not is_over_asteroid:
             self.game_state.over_asteroid_id = ""

@@ -1,6 +1,6 @@
 import os
 
-import pygame
+import pygame, pygame_gui
 from pygame.locals import *
 from pygame.math import Vector2
 from player import Player
@@ -26,16 +26,25 @@ class Game():
                                                game_constants.get("window_height")))
         self.bg = Background(self.surface, self.game_state)
 
-        self.player = Player()
+        self.player = Player(self.game_state)
         
         self.targets = [Asteroid(self.game_state) for _ in range(15)]
         
         self.all_sprites = pygame.sprite.Group(self.player, self.targets)
         self.laser_beam = LaserBeam(self.player.rect.center, self.game_state)
-        
+        self.gui_manager = pygame_gui.UIManager((game_constants.get("window_width"),
+                                               game_constants.get("window_height")), "theme.json")
         pygame.display.set_caption("Marcianito 100% Real")
         self.running = True
         self.movement = pygame.Vector2(0,0)
+        
+        _ = pygame_gui.elements.UIScreenSpaceHealthBar(relative_rect=pygame.Rect((24, 24), (256, 24)),
+                                                                manager=self.gui_manager, sprite_to_monitor=self.player)
+        self.text_score = pygame_gui.elements.UILabel(text="0", relative_rect=pygame.Rect((1000, 6), (280, 64)), manager=self.gui_manager)
+
+        self.text_timer = pygame_gui.elements.UILabel(text="03:00", relative_rect=pygame.Rect((600, 6), (100, 64)), manager=self.gui_manager)
+
+        self.timer = 180000 / 3
 
     def processInput(self):
         self.movement = Vector2(0,0)
@@ -43,18 +52,19 @@ class Game():
             if event.type == pygame.QUIT:
                 self.running = False
                 break
+            self.gui_manager.process_events(event)
         
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
             self.running = False
         elif keys[pygame.K_d]:
-            self.movement.x = 8
+            self.movement.x = 12
         elif keys[pygame.K_a]:
-            self.movement.x = -8
+            self.movement.x = -12
         elif keys[pygame.K_s]:
-            self.movement.y = 8
+            self.movement.y = 12
         elif keys[pygame.K_w]:
-            self.movement.y = -8
+            self.movement.y = -12
     
     def update(self):
         self.player.update(self.movement)
@@ -62,14 +72,24 @@ class Game():
         self.bg.update(self.player.rect)
         self.targets[:] = [target for target in self.targets if target.is_alive]
         
-        if len(self.targets) <= 5:
-            self.targets.extend([Asteroid(self.game_state, False) for _ in range(10)])
+        if len(self.targets) <= 10:
+            self.targets.extend([Asteroid(self.game_state, False) for _ in range(5)])
         
         for target in self.targets:
             target.update(self.clock.get_time())
         
         for follower in self.game_state.followers:
             follower.update(self.delta_time, self.player.rect.center)
+            
+        self.gui_manager.update(self.delta_time)
+        
+        if self.timer > 0:
+            self.timer -= self.clock.get_time()
+        else:
+            self.timer = 0
+        
+        self.text_timer.set_text(self.milliseconds_to_minutes(self.timer))
+        self.text_score.set_text(str(self.game_state.score))
 
     def render(self):
         self.surface.fill((0,0,0))
@@ -90,6 +110,9 @@ class Game():
             
         self.player.animate()
         self.all_sprites.draw(self.surface)
+        
+        self.gui_manager.draw_ui(self.surface)
+        
         pygame.display.flip()
     
     def run(self):
@@ -98,6 +121,15 @@ class Game():
             self.update()
             self.render()
             self.delta_time = self.clock.tick(60) / 1000.0
+            
+    def seconds_to_minutes(self, seconds):
+        minutes = int(seconds // 60)
+        seconds = int(seconds % 60)
+        return '{:02d}:{:02d}'.format(minutes, seconds)
+
+    def milliseconds_to_minutes(self, milliseconds):
+        seconds = milliseconds // 1000
+        return self.seconds_to_minutes(seconds)
 
 game = Game()
 game.run()
