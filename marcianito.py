@@ -6,7 +6,7 @@ from constants import game_constants
 class Marcianito(pygame.sprite.Sprite):
     def __init__(self, game_state = None, scale = False, initial_pos = (640, 320)):
         super().__init__()
-        self.sprite_sheet = pygame.image.load(os.path.join('images','marcianito.png'))
+        self.sprite_sheet = pygame.image.load(os.path.join('data','images','marcianito.png'))
         self.frame_width = 96
         self.frame_height = 128
         self.frames_per_row = 5

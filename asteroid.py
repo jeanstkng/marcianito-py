@@ -8,7 +8,7 @@ class Asteroid(pygame.sprite.Sprite):
     def __init__(self, game_state, is_rendered = True):
         super().__init__()
         # Explosion
-        self.sprite_sheet = pygame.image.load(os.path.join('images','explotion.png'))
+        self.sprite_sheet = pygame.image.load(os.path.join('data','images','explotion.png'))
         self.frame_width = 256
         self.frames_per_row = 8
         self.total_frames = 8
@@ -21,7 +21,7 @@ class Asteroid(pygame.sprite.Sprite):
 
         # Asteroid
         self.id = uuid.uuid4()
-        self.image = pygame.image.load(os.path.join('images','asteroid.png')).convert_alpha()
+        self.image = pygame.image.load(os.path.join('data','images','asteroid.png')).convert_alpha()
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect = self.image.get_rect()
         self.rect.center = (random.randint(-1280, 1280 * 2), random.randint(0, 720))
@@ -93,6 +93,7 @@ class Asteroid(pygame.sprite.Sprite):
                 if self.health < self.actual_scoring_limit:
                     self.actual_scoring_limit -= 10
                     self.game_state.score += 1
+                    self.game_state.player_health -= 0.25
                 self.image = self.create_image_surface_with_fog(self.image, (255, 0, 0), self.color_rate)
         elif self.game_state.over_asteroid_id == self.id and not is_over_asteroid:
             self.game_state.over_asteroid_id = ""

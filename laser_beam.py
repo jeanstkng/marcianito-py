@@ -14,7 +14,7 @@ class LaserBeam():
         self.x_pos = 0
         self.x_scale = 0
         
-        self.laser = pygame.image.load(os.path.join('images','laser.png')).convert_alpha()
+        self.laser = pygame.image.load(os.path.join('data','images','laser.png')).convert_alpha()
         self.image = self.laser
         self.pivot = pivot
         self.pos = Vector2(pivot) + (self.x_pos_increment, 0)
