@@ -9,6 +9,7 @@ from background import Background
 from laser_beam import LaserBeam
 from asteroid import Asteroid
 from game_state import GameState
+from enemy import Enemy
 
 os.environ["SLD_VIDEO_CENTERED"] = "1"
 
@@ -84,7 +85,6 @@ class Game():
                     self.button_main_menu.visible = 0
                     self.text_final_score.visible = 0
                     self.health_bar.set_sprite_to_monitor(self.player)
-                    
                 self.gui_main_menu_manager.process_events(event)
                     
             return
@@ -94,6 +94,9 @@ class Game():
             if event.type == pygame.QUIT:
                 self.running = False
                 break
+            elif event.type == KEYDOWN:
+                if event.key == K_SPACE:
+                    self.game_state.laser_attack_increment = 20
             self.gui_manager.process_events(event)
         
         keys = pygame.key.get_pressed()
@@ -125,10 +128,21 @@ class Game():
         self.targets[:] = [target for target in self.targets if target.is_alive]
         
         if len(self.targets) <= 10:
-            self.targets.extend([Asteroid(self.game_state, False) for _ in range(5)])
+            self.targets.extend([Asteroid(self.game_state, False) for _ in range(10)])
+        
+        if len(self.enemies) <= 4:
+            self.enemies.extend([Enemy(self.game_state) for _ in range(4)])
         
         for target in self.targets:
             target.update(self.clock.get_time())
+        
+        for enemy in self.enemies:
+            enemy.update(self.clock.get_time())
+            x_enemy = enemy.rect.center[0]
+            if x_enemy > 0 and x_enemy < 1280:
+                enemy.laser_beam.update(enemy.rect.center)
+            else:
+                enemy.laser_beam.reset_image_change()
         
         for follower in self.game_state.followers:
             follower.update(self.delta_time, self.player.rect.center)
@@ -165,6 +179,9 @@ class Game():
             if not target.is_rendered:
                 self.all_sprites.add(target)
                 target.is_rendered = True
+                
+        for enemy in self.enemies:
+            enemy.laser_beam.draw(self.surface)
             
         self.player.animate()
         self.all_sprites.draw(self.surface)
@@ -190,7 +207,8 @@ class Game():
         self.bg = Background(self.surface, self.game_state)
         self.player = Player(self.game_state)
         self.targets = [Asteroid(self.game_state) for _ in range(20)]
-        self.all_sprites = pygame.sprite.Group(self.player, self.targets)
+        self.enemies = [Enemy(self.game_state) for _ in range(8)]
+        self.all_sprites = pygame.sprite.Group(self.player, self.targets, self.enemies)
         self.laser_beam = LaserBeam(self.player.rect.center, self.game_state)
             
     def seconds_to_minutes(self, seconds):

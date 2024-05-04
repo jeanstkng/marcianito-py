@@ -8,5 +8,7 @@ class GameState():
         self.laser_reached = False
         self.player_dir = 0
         self.followers = []
-        self.player_health = 2
+        self.player_health = 30
         self.score = 0
+        self.enemy_lasers_reached = []
+        self.laser_attack_increment = 0

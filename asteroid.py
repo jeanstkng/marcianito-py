@@ -24,15 +24,17 @@ class Asteroid(pygame.sprite.Sprite):
         self.image = pygame.image.load(os.path.join('data','images','asteroid.png')).convert_alpha()
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect = self.image.get_rect()
-        self.rect.center = (random.randint(-1280, 1280 * 2), random.randint(0, 720))
+        self.rect.center = (random.randint(-2800, 2800), random.randint(0, 720))
         self.position = self.rect.center
         self.game_state = game_state
-        self.health = 100
+        self.health = 50
         self.is_alive = True
         self.color_rate = 0.005
         self.direction = Vector2(random.choice([-1, 1]), 0)
         self.speed = 0.1
         self.actual_scoring_limit = 100
+        self.enemy_health_modif = 1.5
+        self.health_decrease = 0.75
         
         self.is_rendered = is_rendered
         self.dt = 0
@@ -56,6 +58,14 @@ class Asteroid(pygame.sprite.Sprite):
         self.dt = dt
         if self.explosion_started:
             self.animate()
+            
+        if self.health > 100:
+            self.game_state.over_asteroid_id = ""
+            self.game_state.is_over_asteroid = False
+            self.is_alive = False
+            self.kill()
+            return
+            
 
         if self.health <= 0:
             self.game_state.over_asteroid_id = ""
@@ -88,13 +98,23 @@ class Asteroid(pygame.sprite.Sprite):
         if is_over_asteroid:
             self.game_state.over_asteroid_id = self.id
             self.game_state.is_over_asteroid = True
+            if len(self.game_state.enemy_lasers_reached) > 0:
+                self.health += (self.enemy_health_modif * len(self.game_state.enemy_lasers_reached))
+                
             if self.game_state.laser_reached:
-                self.health -= 1
+                if self.game_state.laser_attack_increment > 0:
+                    self.health -= self.game_state.laser_attack_increment
+                    self.game_state.laser_attack_increment = 0
+                else:
+                    self.health -= self.health_decrease
+                
                 if self.health < self.actual_scoring_limit:
                     self.actual_scoring_limit -= 10
                     self.game_state.score += 1
                     self.game_state.player_health -= 0.25
                 self.image = self.create_image_surface_with_fog(self.image, (255, 0, 0), self.color_rate)
+            
+            
         elif self.game_state.over_asteroid_id == self.id and not is_over_asteroid:
             self.game_state.over_asteroid_id = ""
             self.game_state.is_over_asteroid = False

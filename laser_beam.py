@@ -7,7 +7,7 @@ import math
 screen_center_x = game_constants.get("window_width") / 2
 
 class LaserBeam():
-    def __init__(self, pivot, game_state):
+    def __init__(self, pivot, game_state, tint = False, is_enemy = False, enemy_id = ""):
         self.x_scale_increment = 20
         self.x_pos_increment = 10
         
@@ -15,6 +15,7 @@ class LaserBeam():
         self.x_scale = 0
         
         self.laser = pygame.image.load(os.path.join('data','images','laser.png')).convert_alpha()
+        self.laser = self.create_image_surface_with_tint(self.laser, tint) if tint else self.laser
         self.image = self.laser
         self.pivot = pivot
         self.pos = Vector2(pivot) + (self.x_pos_increment, 0)
@@ -23,6 +24,9 @@ class LaserBeam():
         
         self.is_shooting = False
         self.game_state = game_state
+        
+        self.is_enemy = is_enemy
+        self.enemy_id = enemy_id
 
     def update(self, pivot):
         if pygame.mouse.get_pressed()[0] and self.game_state.is_over_asteroid:
@@ -69,7 +73,11 @@ class LaserBeam():
             self.x_pos -= self.x_pos_increment
 
         if abs(self.x_scale - int(distance)) <= 25:
-            self.game_state.laser_reached = True
+            if not self.is_enemy:
+                self.game_state.laser_reached = True
+            else:
+                if self.enemy_id not in self.game_state.enemy_lasers_reached:
+                    self.game_state.enemy_lasers_reached.append(self.enemy_id)
 
         self.image_orig = pygame.transform.scale(self.laser, (self.x_scale, 20))
         self.image = self.image_orig
@@ -80,10 +88,21 @@ class LaserBeam():
         self.rect = self.image.get_rect(center = self.pos)
         
     def reset_image_change(self):
-        self.game_state.laser_reached = False
+        if not self.is_enemy:
+            self.game_state.laser_reached = False
+        else:
+            if self.enemy_id in self.game_state.enemy_lasers_reached:
+                self.game_state.enemy_lasers_reached.remove(self.enemy_id)
+        
         self.x_pos = 0
         self.x_scale = 0
         self.image_orig = pygame.transform.scale(self.laser, (0, 0))
         self.image = self.image_orig
         self.image_unflipped = pygame.transform.scale(self.laser, (0, 0))
         self.image_flipped = pygame.transform.flip(self.image_orig, False, True)
+        
+    def create_image_surface_with_tint(self, surf, tint):
+        surf = surf.copy()
+        surf.fill((0, 0, 0, 255), None, pygame.BLEND_RGBA_MULT)
+        surf.fill(tint[0:3] + (0,), None, pygame.BLEND_RGBA_ADD)
+        return surf
