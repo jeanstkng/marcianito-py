@@ -8,7 +8,7 @@ class Asteroid(pygame.sprite.Sprite):
     def __init__(self, game_state, is_rendered = True):
         super().__init__()
         # Explosion
-        self.sprite_sheet = pygame.image.load(os.path.join('data','images','explotion.png'))
+        self.sprite_sheet = pygame.image.load(os.path.join('images','explotion.png'))
         self.frame_width = 256
         self.frames_per_row = 8
         self.total_frames = 8
@@ -21,7 +21,7 @@ class Asteroid(pygame.sprite.Sprite):
 
         # Asteroid
         self.id = uuid.uuid4()
-        self.image = pygame.image.load(os.path.join('data','images','asteroid.png')).convert_alpha()
+        self.image = pygame.image.load(os.path.join('images','asteroid.png')).convert_alpha()
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect = self.image.get_rect()
         self.rect.center = (random.randint(-2800, 2800), random.randint(0, 720))

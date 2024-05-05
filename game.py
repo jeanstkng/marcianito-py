@@ -1,6 +1,7 @@
 import os
 
-import pygame, pygame_gui
+import pygame_gui
+import pygame
 from pygame.locals import *
 from pygame.math import Vector2
 from player import Player
@@ -20,10 +21,10 @@ class Game():
         pygame.init()
         
         pygame.display.set_caption("Marcianito 100% Real")
-        game_icon = pygame.image.load(os.path.join('data','images','icon.png'))
+        game_icon = pygame.image.load(os.path.join('images','icon.png'))
         pygame.display.set_icon(game_icon)
         
-        pygame.mixer.music.load(os.path.join('data','sounds','cumbia.mp3'))
+        pygame.mixer.music.load(os.path.join('sounds','cumbia.mp3'))
         pygame.mixer.music.play(-1)
         pygame.mixer.music.set_volume(0.25)
         
@@ -49,7 +50,7 @@ class Game():
 
         self.text_timer = pygame_gui.elements.UILabel(text="03:00", relative_rect=pygame.Rect((600, 6), (100, 64)), manager=self.gui_manager)
         
-        self.bg_main_menu = pygame.image.load(os.path.join('data','images','main_menu.png')).convert()
+        self.bg_main_menu = pygame.image.load(os.path.join('images','main_menu.png')).convert()
         self.button_play = pygame_gui.elements.UIButton(text="PLAY", relative_rect=pygame.Rect((540, 300), (200, 86)), manager=self.gui_main_menu_manager)
         self.button_exit = pygame_gui.elements.UIButton(text="EXIT", relative_rect=pygame.Rect((540, 400), (200, 86)), manager=self.gui_main_menu_manager)
 

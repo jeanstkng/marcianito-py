@@ -14,7 +14,7 @@ class LaserBeam():
         self.x_pos = 0
         self.x_scale = 0
         
-        self.laser = pygame.image.load(os.path.join('data','images','laser.png')).convert_alpha()
+        self.laser = pygame.image.load(os.path.join('images','laser.png')).convert_alpha()
         self.laser = self.create_image_surface_with_tint(self.laser, tint) if tint else self.laser
         self.image = self.laser
         self.pivot = pivot
